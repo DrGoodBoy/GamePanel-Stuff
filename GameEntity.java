@@ -16,7 +16,7 @@ public abstract class GameEntity {
     }
 
     // abstract methods
-    public abstract void passiveUpdate(Graphics2D g); // called on repaint()
+    public abstract void graphicalUpdate(Graphics2D g); // called on repaint()
     public abstract void logicalUpdate();
     public abstract void onClickUpdate(); // called on mouse click
 
