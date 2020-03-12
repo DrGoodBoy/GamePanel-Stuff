@@ -15,13 +15,26 @@
  * Graphics2D documentation: https://docs.oracle.com/en/java/javase/12/docs/api/java.desktop/java/awt/Graphics2D.html
  */
 
-import java.awt.*; // used for graphics
-import java.awt.event.*; // used for listeners
-import javax.swing.*; // used for JFrame
-import java.util.*; // used for various operations
-import java.util.concurrent.*; // used for thread safe operations
-import java.util.Timer; // used to prevent ambiguous timer classes
+// IMPORTS..............................................................................................................
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Graphics;
+import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+// GAMEPANEL............................................................................................................
 public class GamePanel extends JPanel implements MouseMotionListener {
 
     // CLASS CONSTANTS..................................................................................................
@@ -32,13 +45,13 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     private static final int tickSpeed = 10; // delay in milliseconds between each game tick
 
     // ENTITY MANIPULATION FIELDS.......................................................................................
-    private CopyOnWriteArrayList<GameEntity> entities = new CopyOnWriteArrayList<GameEntity>(); // stores all entities
+    private CopyOnWriteArrayList<GameEntity> entities = new CopyOnWriteArrayList<>(); // stores all entities
 
     // MOUSE AND KEY FIELDS.............................................................................................
     private int mouseX; // current position of the mouse
     private int mouseY; // current position of the mouse
-    private ArrayList<Integer> mouseButtonsDown = new ArrayList<Integer>(); // current buttons being pressed down
-    private ArrayList<Integer> keysDown = new ArrayList<Integer>(); // current keys being pressed down
+    private ArrayList<Integer> mouseButtonsDown = new ArrayList<>(); // current buttons being pressed down
+    private ArrayList<Integer> keysDown = new ArrayList<>(); // current keys being pressed down
 
     // CONSTRUCTORS
     public GamePanel() { // default constructor
