@@ -157,9 +157,9 @@ public class GamePanel extends JPanel implements MouseMotionListener { // class 
     }
 
     // ENTITY METHODS
-    public void passiveUpdateAll(Graphics2D g) {
+    public void graphicalUpdateAll(Graphics2D g) {
         for(GameEntity i : entities) {
-            i.passiveUpdate(g);
+            i.graphicalUpdate(g);
         }
     }
 
@@ -187,7 +187,7 @@ public class GamePanel extends JPanel implements MouseMotionListener { // class 
         Graphics2D g = (Graphics2D)graphics; // allows for Graphics2D painting
         g.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON)); // turns on antialiasing
-        passiveUpdateAll(g);
+        graphicalUpdateAll(g);
     }
 
     // ACCESSORS
