@@ -1,32 +1,57 @@
+/*
+ * Programmer: Wyatt Rose
+ *
+ * Last Edited: 3/11/20
+ *
+ * Created: 2/16/20
+ * 
+ * Description: The GameEntity class provides building blocks for making sprites in a GamePanel. Any sprite that you
+ * want to create should extend this class to get all of the benefits of GamePanel! You can alter access modifiers to
+ * your liking and it will have no effect on program execution. You can append your entities to the GamePanel by using
+ * initializeStartingEntities() inside GamePanel. This class is not as viable if you aren't using a GamePanel.
+ */
+
 import java.awt.Graphics2D;
 
 public abstract class GameEntity {
 
-    // fields
-    protected GamePanel game;
-    protected double xPos;
-    protected double yPos;
-    protected boolean dead;
+    // FIELDS (make them protected if you want)
+    private GamePanel game; // current game this entity is in
+    private boolean dead; // if the sprite is ready to be terminated
+    private double xPos; // current x position of the entity
+    private double yPos; // current y position of the entity
 
-    // constructors
-    public GameEntity(GamePanel game, double xPos, double yPos) {
+    // CONSTRUCTORS
+    public GameEntity() { // for testing purposes
+        this.game = null;
+        this.xPos = 0;
+        this.yPos = 0;
+        this.dead = false;
+    }
+
+    public GameEntity(GamePanel game) {
+        this();
         this.game = game;
+    }
+
+    public GameEntity(GamePanel game, double xPos, double yPos) {
+        this(game);
         this.xPos = xPos;
         this.yPos = yPos;
     }
 
-    // abstract methods
-    public abstract void graphicalUpdate(Graphics2D g); // called on repaint()
-    public abstract void logicalUpdate();
-    public abstract void onClickUpdate(); // called on mouse click
+    // ABSTRACT METHODS
+    public abstract void graphicalUpdate(Graphics2D g); // graphical Updates in GamePanel
+    public abstract void logicalUpdate(); // game tick updates in GamePanel
+    public abstract void onClickUpdate(); // on click updates in GamePanel
 
-    // getters
+    // GETTERS
+    public boolean isDead() {return dead;}
     public double getxPos() {return xPos;}
     public double getyPos() {return yPos;}
-    public boolean isDead() {return dead;}
 
-    // setters
+    // SETTERS
+    public void setDead(boolean dead) {this.dead = dead;}
     public void setxPos(double xPos) {this.xPos = xPos;}
     public void setyPos(double yPos) {this.yPos = yPos;}
-    public void setDead(boolean dead) {this.dead = dead;}
 }
