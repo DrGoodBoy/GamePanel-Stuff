@@ -4,7 +4,7 @@
  * Last Edited: 3/11/20
  *
  * Created: 2/16/20
- * 
+ *
  * Description: The GameEntity class provides building blocks for making sprites in a GamePanel. Any sprite that you
  * want to create should extend this class to get all of the benefits of GamePanel! You can alter access modifiers to
  * your liking and it will have no effect on program execution. You can append your entities to the GamePanel by using
@@ -46,6 +46,7 @@ public abstract class GameEntity {
     public abstract void onClickUpdate(); // on click updates in GamePanel
 
     // GETTERS
+    public GamePanel getGame() {return game;};
     public boolean isDead() {return dead;}
     public double getxPos() {return xPos;}
     public double getyPos() {return yPos;}
