@@ -16,179 +16,176 @@
  */
 
 import java.awt.*; // used for graphics
-import java.awt.event.*; // used for all the listeners
-import javax.swing.*; // used for jFrame
+import java.awt.event.*; // used for listeners
+import javax.swing.*; // used for JFrame
 import java.util.*; // used for various operations
-import java.util.Timer; // to prevent ambiguous timer classes
-import java.util.concurrent.*;
+import java.util.concurrent.*; // used for thread safe operations
+import java.util.Timer; // used to prevent ambiguous timer classes
 
-public class GamePanel extends JPanel implements MouseMotionListener { // class that helps making games easier
+public class GamePanel extends JPanel implements MouseMotionListener {
 
-    // CLASS CONSTANTS
-    private static final long serialVersionUID = 1L; // ignore this unless you're using serialization for some reason
-    private static final String frameName = "GamePanel";
-    private static final int panelSizeX = 800; // preferred size of panel and frame
-    private static final int panelSizeY = 800; // ^
-    private static final int tickSpeed = 10;
+    // CLASS CONSTANTS..................................................................................................
+    private static final long serialVersionUID = 1L; // used for serialization
+    private static final String frameName = "GamePanel"; // the name of the window
+    private static final int panelSizeX = 800; // length of the panel
+    private static final int panelSizeY = 800; // width of the panel
+    private static final int tickSpeed = 10; // delay in milliseconds between each game tick
 
-    // ENTITY MANIPULATION FIELDS
-    private CopyOnWriteArrayList<GameEntity> entities = new CopyOnWriteArrayList<GameEntity>(); // thread safe arraylist
+    // ENTITY MANIPULATION FIELDS.......................................................................................
+    private CopyOnWriteArrayList<GameEntity> entities = new CopyOnWriteArrayList<GameEntity>(); // stores all entities
 
-    // MOUSE AND KEY FIELDS
-    private int mouseX;
-    private int mouseY;
-    private ArrayList<Integer> mouseButtonsDown = new ArrayList<Integer>();
-    private ArrayList<Integer> keysDown = new ArrayList<Integer>();
+    // MOUSE AND KEY FIELDS.............................................................................................
+    private int mouseX; // current position of the mouse
+    private int mouseY; // current position of the mouse
+    private ArrayList<Integer> mouseButtonsDown = new ArrayList<Integer>(); // current buttons being pressed down
+    private ArrayList<Integer> keysDown = new ArrayList<Integer>(); // current keys being pressed down
 
     // CONSTRUCTORS
-    public GamePanel() {
+    public GamePanel() { // default constructor
 
         setFocusable(true); // allows for keyboard input
 
-        addMouseMotionListener(this); // registers this class as a mouseMotionListener
+        addMouseMotionListener(this); // starts mouse motion listener on this component
 
-        addMouseListener(new MouseAdapter() { // mouse button methods
+        addMouseListener(new MouseAdapter() { // starts a mouse listener on this component
             @Override
-            public void mouseClicked(MouseEvent e) { // called on click (press and release in conjunction)
-
-            }
+            public void mouseClicked(MouseEvent e) { } // called on mouse click
 
             @Override
-            public void mousePressed(MouseEvent e) { // called on press
+            public void mousePressed(MouseEvent e) { // called on mouse press
                 updateMousePosition(e);
                 updateMousePressed(e);
                 onClickUpdateAll();
             }
 
             @Override
-            public void mouseReleased(MouseEvent e) { // called on release
+            public void mouseReleased(MouseEvent e) { // called on mouse release
                 updateMousePosition(e);
                 updateMouseReleased(e);
             }
         });
 
-        addKeyListener(new KeyListener() { // keyboard input methods
+        addKeyListener(new KeyListener() { // starts a key listener on this component
             @Override
-            public void keyTyped(KeyEvent e) { // called when typed (see java documentation for more information)
-
-            }
+            public void keyTyped(KeyEvent e) { } // called on key click
 
             @Override
-            public void keyPressed(KeyEvent e) { // called on press
-                updateKeyPressed(e);
-            }
+            public void keyPressed(KeyEvent e) { updateKeyPressed(e); } // called on key press
 
             @Override
-            public void keyReleased(KeyEvent e) { // called on release
-                updateKeyReleased(e);
-            }
+            public void keyReleased(KeyEvent e) { updateKeyReleased(e); } // called on key release
         });
 
-        initializeStartingEntities();
+        initializeStartingEntities(); // adds all starting entities to the entities array
 
-        Timer timer = new Timer("Ticker"); // Logical Updates, timer class is a lifesaver
-        timer.schedule(new TimerTask() {
+        Timer timer = new Timer("tick"); // creates a new timer
+
+        timer.schedule(new TimerTask() { // calls run every 'n' milliseconds, where 'n' is tickSpeed
             @Override
             public void run() {
-                logicalUpdateAll(); // timers are thread-safe, so no need to worry about memory consistency errors
+                logicalUpdateAll(); // calls all entities' logical methods
             }
-        }, 0, tickSpeed);
+        }, 0, tickSpeed); // starts this timer immediately
 
-        Thread paintThread = new Thread(() -> { // thread devoted to calling repaint (allows for animation)
+        Thread paintThread = new Thread(() -> { // thread devoted to calling repaint() for animation
             while(true) {
-                repaint();
+                repaint(); // calls paintComponent(Graphics g)
             }
         });
-        paintThread.start();
+
+        Thread purgeThread = new Thread(() -> { // thread devoted to purging dead entities
+            while(true) {
+                purgeDeadEntities(); // removes all dead entities
+            }
+        });
+
+        paintThread.start(); // starts execution of the paintThread
+        purgeThread.start(); // starts execution of the purgeThread
     }
 
-    // MOUSE MOVEMENT METHODS
+    // MOUSE MOVEMENT METHODS...........................................................................................
     @Override
-    public void mouseMoved(MouseEvent e) { // called when mouse is moved
-        updateMousePosition(e);
-    }
+    public void mouseMoved(MouseEvent e) { updateMousePosition(e); } // called when mouse changes position
 
     @Override
-    public void mouseDragged(MouseEvent e) { // called when mouse is pressed and moving
-        updateMousePosition(e);
-    }
+    public void mouseDragged(MouseEvent e) { updateMousePosition(e); } // called when position changes while pressed
 
-    // INPUT UPDATE METHODS
-    public void updateMousePosition(MouseEvent e) { // updates GamePanel's mouse fields
+    // INPUT UPDATE METHODS.............................................................................................
+    public void updateMousePosition(MouseEvent e) { // updates GamePanel's fields to match current mousePosition
         mouseX = e.getX();
         mouseY = e.getY();
     }
 
-    public void updateMousePressed(MouseEvent e) { // updates the mouseButtonsDown arrayList
-        if(!mouseButtonsDown.contains(Integer.valueOf(e.getButton()))) {
-            mouseButtonsDown.add(Integer.valueOf(e.getButton()));
+    public void updateMousePressed(MouseEvent e) { // update GamePanel's mouseButtonsDown to match current buttons
+        if(!mouseButtonsDown.contains(e.getButton())) {
+            mouseButtonsDown.add(e.getButton());
         }
     }
 
-    public void updateMouseReleased(MouseEvent e) { // updates the mouseButtonsDown arrayList
-        if(mouseButtonsDown.contains(Integer.valueOf(e.getButton()))) {
+    public void updateMouseReleased(MouseEvent e) { // update GamePanel's mouseButtonsDown to match current buttons
+        if(mouseButtonsDown.contains(e.getButton())) {
             mouseButtonsDown.remove(Integer.valueOf(e.getButton()));
         }
     }
 
-    public void updateKeyPressed(KeyEvent e) { // updates the keysDown arrayList
-        if(!keysDown.contains(Integer.valueOf(e.getKeyCode()))) {
-            keysDown.add(Integer.valueOf(e.getKeyCode()));
+    public void updateKeyPressed(KeyEvent e) { // update GamePanel's keysDown to match current buttons
+        if(!keysDown.contains(e.getKeyCode())) {
+            keysDown.add(e.getKeyCode());
         }
     }
 
-    public void updateKeyReleased(KeyEvent e) { // updates the keysDown arraylist
-        if(keysDown.contains(Integer.valueOf(e.getKeyCode()))) {
+    public void updateKeyReleased(KeyEvent e) { // update GamePanel's keysDown to match current buttons
+        if(keysDown.contains(e.getKeyCode())) {
             keysDown.remove(Integer.valueOf(e.getKeyCode()));
         }
     }
 
-    // EASY METHODS
-    public boolean isKeyPressed(int keyCode) {
-        return keysDown.contains(Integer.valueOf(keyCode));
-    }
-
-    public boolean isKeyPressed() {
-        return !keysDown.isEmpty();
-    }
-
-    public boolean isButtonPressed(int button) {
-        return mouseButtonsDown.contains(Integer.valueOf(button));
-    }
-
-    // ENTITY METHODS
-    public void graphicalUpdateAll(Graphics2D g) {
+    // ENTITY UPDATE METHODS............................................................................................
+    public void graphicalUpdateAll(Graphics2D g) { // calls passiveUpdate on all entities in 'entities'
         for(GameEntity i : entities) {
             i.graphicalUpdate(g);
         }
     }
 
-    public void logicalUpdateAll() {
+    public void logicalUpdateAll() { // calls logicalUpdate on all entities in 'entities'
         for(GameEntity i : entities) {
             i.logicalUpdate();
         }
     }
 
-    public void onClickUpdateAll() {
+    public void onClickUpdateAll() { // calls onClickUpdate on all entities in 'entities'
         for(GameEntity i : entities) {
             i.onClickUpdate();
         }
     }
-    // THE STUFF OTHER PEOPLE NEED TO WORRY ABOUT.......................................................................
-    public void initializeStartingEntities() {
-        // <add your starting entities here>
-    }
-    //..................................................................................................................
 
-    // GRAPHICAL UPDATES
-    @Override
-    public void paintComponent(Graphics graphics) { // graphical and passive updates are called here, called on repaint
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D)graphics; // allows for Graphics2D painting
-        g.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON)); // turns on antialiasing
-        graphicalUpdateAll(g);
+    public void purgeDeadEntities() { // removes all entities flagged dead in 'entities'
+        for(GameEntity i : entities) {
+            if(i.isDead()) {
+                entities.remove(i);
+            }
+        }
     }
+
+    // PUT YOUR STARTING ENTITIES HERE..................................................................................
+    public void initializeStartingEntities() { // adds all starting entities at the beginning of execution
+
+    }
+
+    // GRAPHICAL UPDATES................................................................................................
+    @Override
+    public void paintComponent(Graphics graphics) { // updates graphics on panel
+        super.paintComponent(graphics);
+        Graphics2D g = (Graphics2D)graphics; // casting graphics to graphics2D for better graphical methods
+        g.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON)); // activates antialiasing
+        graphicalUpdateAll(g); // updates all entities
+    }
+
+    // ARRAY ACCESS METHODS.............................................................................................
+    public boolean isKeyPressed(int keyCode) { return keysDown.contains(keyCode); }
+    public boolean isKeyPressed() { return !keysDown.isEmpty(); }
+    public boolean isButtonPressed(int button) { return mouseButtonsDown.contains(button); }
 
     // ACCESSORS
     public int getMouseX() {return mouseX;}
@@ -196,11 +193,11 @@ public class GamePanel extends JPanel implements MouseMotionListener { // class 
     public ArrayList<Integer> getMouseButtonsDown() {return mouseButtonsDown;}
     public ArrayList<Integer> getKeysDown() {return keysDown;}
     public CopyOnWriteArrayList<GameEntity> getEntities() {return entities;}
-    public Dimension getPreferredSize() {return new Dimension(panelSizeX,panelSizeY);} // createGUI() uses this
+    public Dimension getPreferredSize() {return new Dimension(panelSizeX,panelSizeY);} // used for createGUI() in main
 
-    // MAIN METHOD AND FRAME CREATION
+    // MAIN METHOD AND FRAME CREATION...................................................................................
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() { // running this instance of runnable when the time is "just right"
+        SwingUtilities.invokeLater(new Runnable() { // suspends execution until it is safe to execute
             @Override
             public void run() {
                 createGUI(frameName);
@@ -208,7 +205,7 @@ public class GamePanel extends JPanel implements MouseMotionListener { // class 
         });
     }
 
-    public static void createGUI(String name) {
+    public static void createGUI(String name) { // creates a frame and adds GamePanel to it
         JFrame f = new JFrame(name);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // stops the program when window is closed
         f.add(new GamePanel()); // appends the panel to the frame
