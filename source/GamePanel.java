@@ -16,11 +16,6 @@
  */
 
 // IMPORTS..............................................................................................................
-
-package com.main;
-import com.entitygroups.*;
-import com.itemgroups.*;
-
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Graphics;
