@@ -5,9 +5,9 @@
  *
  * Created: 2/5/20
  *
- * Description: com.stuff.GamePanel is a class that helps making games easier by handling
+ * Description: GamePanel is a class that helps making games easier by handling
  * keyboard and mouse inputs as well as graphical updates. It is fairly easy to
- * use and is much more tuned to game creation than DrawingPanel. com.stuff.GamePanel is
+ * use and is much more tuned to game creation than DrawingPanel. GamePanel is
  * also viable when trying to create animated images, as there is an easy way
  * to create Entities that can exist on the Panel.
  *
@@ -44,7 +44,7 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
     // CLASS CONSTANTS..................................................................................................
     private static final long serialVersionUID = 1L; // used for serialization
-    private static final String frameName = "com.stuff.GamePanel"; // the name of the window
+    private static final String frameName = "GamePanel"; // the name of the window
     private static final int panelSizeX = 800; // length of the panel
     private static final int panelSizeY = 800; // width of the panel
     private static final int tickSpeed = 10; // delay in milliseconds between each game tick
@@ -130,30 +130,30 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     public void mouseDragged(MouseEvent e) { updateMousePosition(e); } // called when position changes while pressed
 
     // INPUT UPDATE METHODS.............................................................................................
-    public void updateMousePosition(MouseEvent e) { // updates com.stuff.GamePanel's fields to match current mousePosition
+    public void updateMousePosition(MouseEvent e) { // updates GamePanel's fields to match current mousePosition
         mouseX = e.getX();
         mouseY = e.getY();
     }
 
-    public void updateMousePressed(MouseEvent e) { // update com.stuff.GamePanel's mouseButtonsDown to match current buttons
+    public void updateMousePressed(MouseEvent e) { // update GamePanel's mouseButtonsDown to match current buttons
         if(!mouseButtonsDown.contains(e.getButton())) {
             mouseButtonsDown.add(e.getButton());
         }
     }
 
-    public void updateMouseReleased(MouseEvent e) { // update com.stuff.GamePanel's mouseButtonsDown to match current buttons
+    public void updateMouseReleased(MouseEvent e) { // update GamePanel's mouseButtonsDown to match current buttons
         if(mouseButtonsDown.contains(e.getButton())) {
             mouseButtonsDown.remove(Integer.valueOf(e.getButton()));
         }
     }
 
-    public void updateKeyPressed(KeyEvent e) { // update com.stuff.GamePanel's keysDown to match current buttons
+    public void updateKeyPressed(KeyEvent e) { // update GamePanel's keysDown to match current buttons
         if(!keysDown.contains(e.getKeyCode())) {
             keysDown.add(e.getKeyCode());
         }
     }
 
-    public void updateKeyReleased(KeyEvent e) { // update com.stuff.GamePanel's keysDown to match current buttons
+    public void updateKeyReleased(KeyEvent e) { // update GamePanel's keysDown to match current buttons
         if(keysDown.contains(e.getKeyCode())) {
             keysDown.remove(Integer.valueOf(e.getKeyCode()));
         }
@@ -228,7 +228,7 @@ public class GamePanel extends JPanel implements MouseMotionListener {
         });
     }
 
-    public static void createGUI(String name) { // creates a frame and adds com.stuff.GamePanel to it
+    public static void createGUI(String name) { // creates a frame and adds GamePanel to it
         JFrame f = new JFrame(name);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // stops the program when window is closed
         f.add(new GamePanel()); // appends the panel to the frame
